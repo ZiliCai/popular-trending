@@ -25,10 +25,12 @@ function langSpan(lang) {
 
 export function cardHtml(item, sourceKey, isHero = false, lang = 'zh') {
   const zh = lang === 'zh';
-  const rawTitle = (zh && item.titleZh) ? item.titleZh : (item.repo || item.name || item.title || '');
+  const zhTitle = item.titlePlain || item.titleZh;
+  const rawTitle = (zh && zhTitle) ? zhTitle : (item.repo || item.name || item.title || '');
   const title = escapeHtml(rawTitle);
   const url = escapeHtml(item.url || '#');
-  const descText = (zh && item.descZh) ? item.descZh : item.desc;
+  const zhDesc = item.descPlain || item.descZh;
+  const descText = (zh && zhDesc) ? zhDesc : item.desc;
   const desc = descText ? `<p class="desc">${escapeHtml(descText)}</p>` : '';
   let meta = '';
   if (sourceKey === 'githubTrending') {

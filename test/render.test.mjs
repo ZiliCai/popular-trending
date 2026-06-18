@@ -42,6 +42,13 @@ test('cardHtml uses Chinese fields in zh mode and originals in orig mode', () =>
   assert.ok(orig.includes('Elegant HTTP') && !orig.includes('优雅的 HTTP'));
 });
 
+test('cardHtml prefers plain-language descPlain over descZh in zh mode', () => {
+  const item = { repo: 'a/b', url: 'https://x', desc: 'A SQL database with version control', descZh: '带版本控制的 SQL 数据库', descPlain: '把数据库当 Git 用', stars: 1 };
+  assert.ok(cardHtml(item, 'githubTrending', false, 'zh').includes('把数据库当 Git 用'));
+  assert.ok(!cardHtml(item, 'githubTrending', false, 'zh').includes('带版本控制的 SQL 数据库'));
+  assert.ok(cardHtml(item, 'githubTrending', false, 'orig').includes('A SQL database with version control'));
+});
+
 test('cardHtml swaps HN title via titleZh in zh mode only', () => {
   const hn = { kind: 'hn', title: 'Show HN: cool', titleZh: '展示:很酷', url: 'https://x', points: 5, comments: 2 };
   assert.ok(cardHtml(hn, 'hnph', false, 'zh').includes('展示:很酷'));

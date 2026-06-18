@@ -266,6 +266,20 @@ trending-dashboard/
 - **后续可升级:** 若要更高的术语翻译质量,可改用 LLM(Claude API)翻译,代价是需要
   Anthropic API key + 一个 GitHub Secret + 每天约几分钱。
 
+### 13.3 大白话改写 + 大众向过滤(LLM,可选)
+- **启用条件:** 配置了 `DEEPSEEK_API_KEY`(GitHub Secret)时启用;否则自动回退到
+  §13.2 的 Google 直译、不过滤。
+- **做什么:** 构建时把当天所有条目批量发给 DeepSeek(`deepseek-chat`,一次调用):
+  ① 给每条写一句**大白话中文**简介(`descPlain`,HN 用 `titlePlain`);
+  ② 标记 `keep`(大众向工具/应用/库/学习资源=保留;窄领域科研/论文复现/纯数据集=
+  过滤,拿不准倾向保留)。
+- **过滤范围:** 仅对 `githubTrending` 与 `recentHighStars` 删除 `keep=false` 的条目;
+  HelloGitHub(已人工精选)与 HN·PH 不删,只做大白话改写。
+- **前端优先级:** 中文模式显示 `descPlain || descZh || desc`;「原文」开关仍切回英文。
+- **成本/容错:** 每天 1 次批量调用,成本约几分钱;任何失败都回退到 §13.2 直译,绝不
+  阻断构建。
+- **实现:** `scripts/enrich.mjs`(OpenAI 兼容接口,换 key / baseURL 即可切到别的提供商)。
+
 ## 14. 待确认项(请在评审时拍板)
 
 1. 仓库名 `trending-dashboard`、页面标题"今日有趣 · Trending Dashboard"
