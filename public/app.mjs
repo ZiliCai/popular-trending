@@ -3,10 +3,12 @@ import { cardHtml, filterItems } from './render.mjs';
 const grid = document.getElementById('grid');
 const searchEl = document.getElementById('search');
 const updatedEl = document.getElementById('updated');
+const langEl = document.getElementById('lang');
 const tabs = [...document.querySelectorAll('.tab')];
 
 let data = null;
 let activeSource = 'githubTrending';
+let lang = localStorage.getItem('lang') || 'zh';
 
 function render() {
   if (!data) return;
@@ -17,7 +19,7 @@ function render() {
   }
   const items = filterItems(src.items || [], searchEl.value.trim());
   grid.innerHTML = items.length
-    ? items.map((it, i) => cardHtml(it, activeSource, i === 0)).join('')
+    ? items.map((it, i) => cardHtml(it, activeSource, i === 0, lang)).join('')
     : `<p class="state">没有匹配的项目</p>`;
 }
 
@@ -33,6 +35,15 @@ searchEl.addEventListener('input', render);
 document.getElementById('theme').addEventListener('click', () => {
   const root = document.documentElement;
   root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+});
+
+function syncLang() { langEl.textContent = lang === 'zh' ? '中文' : '原文'; }
+syncLang();
+langEl.addEventListener('click', () => {
+  lang = lang === 'zh' ? 'orig' : 'zh';
+  localStorage.setItem('lang', lang);
+  syncLang();
+  render();
 });
 
 fetch('./data/latest.json')

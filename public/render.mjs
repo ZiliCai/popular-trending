@@ -23,10 +23,13 @@ function langSpan(lang) {
   return lang ? `<span class="lang"><span class="dot"></span>${escapeHtml(lang)}</span>` : '';
 }
 
-export function cardHtml(item, sourceKey, isHero = false) {
-  const title = escapeHtml(item.repo || item.name || item.title || '');
+export function cardHtml(item, sourceKey, isHero = false, lang = 'zh') {
+  const zh = lang === 'zh';
+  const rawTitle = (zh && item.titleZh) ? item.titleZh : (item.repo || item.name || item.title || '');
+  const title = escapeHtml(rawTitle);
   const url = escapeHtml(item.url || '#');
-  const desc = item.desc ? `<p class="desc">${escapeHtml(item.desc)}</p>` : '';
+  const descText = (zh && item.descZh) ? item.descZh : item.desc;
+  const desc = descText ? `<p class="desc">${escapeHtml(descText)}</p>` : '';
   let meta = '';
   if (sourceKey === 'githubTrending') {
     meta = `<div class="meta"><span class="stars">★ ${formatCount(item.stars)}</span>`

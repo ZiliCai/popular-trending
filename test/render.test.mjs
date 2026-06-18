@@ -34,6 +34,20 @@ test('cardHtml marks hero card when isHero is true', () => {
   assert.ok(normal.includes('class="card source-githubTrending"') && !normal.includes('hero'));
 });
 
+test('cardHtml uses Chinese fields in zh mode and originals in orig mode', () => {
+  const item = { repo: 'a/b', url: 'https://x', desc: 'Elegant HTTP', descZh: '优雅的 HTTP', stars: 1 };
+  const zh = cardHtml(item, 'githubTrending', false, 'zh');
+  assert.ok(zh.includes('优雅的 HTTP') && !zh.includes('Elegant HTTP'));
+  const orig = cardHtml(item, 'githubTrending', false, 'orig');
+  assert.ok(orig.includes('Elegant HTTP') && !orig.includes('优雅的 HTTP'));
+});
+
+test('cardHtml swaps HN title via titleZh in zh mode only', () => {
+  const hn = { kind: 'hn', title: 'Show HN: cool', titleZh: '展示:很酷', url: 'https://x', points: 5, comments: 2 };
+  assert.ok(cardHtml(hn, 'hnph', false, 'zh').includes('展示:很酷'));
+  assert.ok(cardHtml(hn, 'hnph', false, 'orig').includes('Show HN: cool'));
+});
+
 test('cardHtml shows topics chips only for recentHighStars with empty desc', () => {
   const out = cardHtml({ repo: 'a/b', url: 'https://x', desc: '', stars: 2907, lang: '', topics: ['ai', 'agent'] }, 'recentHighStars');
   assert.ok(out.includes('class="chip"') && out.includes('ai') && out.includes('agent'));

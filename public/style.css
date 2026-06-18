@@ -82,6 +82,15 @@ body {
 .theme-toggle:hover { transform: translate(-1px,-1px); box-shadow: var(--shadow-lg); }
 .theme-toggle:active { transform: translate(2px,2px); box-shadow: var(--shadow-press); }
 .theme-toggle:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+.lang-toggle {
+  border: var(--rule) solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: var(--s2) var(--s3); font: inherit; font-weight: 700; font-size: 13px; color: var(--ink);
+  cursor: pointer; box-shadow: var(--shadow);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.lang-toggle:hover { transform: translate(-1px,-1px); box-shadow: var(--shadow-lg); }
+.lang-toggle:active { transform: translate(2px,2px); box-shadow: var(--shadow-press); }
+.lang-toggle:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
 .updated { width: 100%; margin: 0; color: var(--ink-2); font-size: 12px; font-weight: 600; max-width: 1200px; margin-inline: auto; padding: 0 var(--s7); }
 
 /* ============ TABS — segmented control ============ */

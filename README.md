@@ -2,6 +2,8 @@
 
 自动更新的榜单：聚合 GitHub Trending、近期高星、HelloGitHub、HN · PH，每天 08:00（北京时间）刷新并部署到 GitHub Pages。
 
+> 界面默认中文（英文简介在构建时自动翻译为中文），右上角「中文 / 原文」可一键切回英文原文。
+
 ## 本地开发
 ```bash
 npm install

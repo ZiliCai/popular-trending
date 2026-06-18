@@ -2,7 +2,7 @@
   "updatedAt": "2026-06-18T00:00:00Z",
   "sources": {
     "githubTrending": { "ok": true, "error": null, "items": [
-      { "repo": "dolthub/dolt", "url": "https://github.com/dolthub/dolt", "desc": "像 Git 一样能版本控制的 SQL 数据库", "lang": "Go", "stars": 18500, "todayStars": 320 },
+      { "repo": "dolthub/dolt", "url": "https://github.com/dolthub/dolt", "desc": "Dolt is Git for data — fork, clone, branch and merge a SQL database", "descZh": "Dolt 是数据版的 Git——可 fork、克隆、分支、合并的 SQL 数据库", "lang": "Go", "stars": 18500, "todayStars": 320 },
       { "repo": "gyroflow/gyroflow", "url": "https://github.com/gyroflow/gyroflow", "desc": "用陀螺仪数据做视频防抖", "lang": "Rust", "stars": 7200, "todayStars": 210 }
     ] },
     "recentHighStars": { "ok": true, "error": null, "items": [
@@ -13,7 +13,7 @@
       { "name": "gittype", "url": "https://github.com/unhappychoice/gittype", "desc": "把代码变成打字游戏", "lang": "Rust", "category": "游戏" }
     ] },
     "hnph": { "ok": true, "error": null, "items": [
-      { "kind": "hn", "title": "Show HN: Folo – an RSS reader", "url": "https://news.ycombinator.com/item?id=46033915", "points": 412, "comments": 156 },
+      { "kind": "hn", "title": "Show HN: Folo – an RSS reader", "titleZh": "Show HN：Folo —— 一个 RSS 阅读器", "url": "https://news.ycombinator.com/item?id=46033915", "points": 412, "comments": 156 },
       { "kind": "ph", "title": "Kami", "url": "https://www.producthunt.com/posts/kami", "desc": "AI 文档设计模板" }
     ] }
   }

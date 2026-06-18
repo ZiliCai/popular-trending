@@ -254,15 +254,17 @@ trending-dashboard/
   高星仓库无简介时,用 topics 小 chip 补一行,避免空卡。Trending 源不返回 topics
   且实测基本都有简介,无需处理。
 
-### 13.2 语言(简介非中文)
-- **决定:v1 保持原文。** 界面 UI 为中文,但**项目简介保持来源原文**
-  (GitHub Trending / 近期高星 / HN 多为英文,HelloGitHub 为中文)。
+### 13.2 语言(构建时翻译 + 中英切换)
+> 决定更新(用户反馈"全是英文看不懂"):v1 改为**翻译 + 可切换**,不再"保持原文"。
+- **构建时翻译:** 每天构建时把英文简介翻成中文(`scripts/translate.mjs`,免费
+  Google `gtx` 端点,**无需密钥**),结果以 `descZh` / `titleZh` 字段存进
+  `latest.json`。任一翻译失败时**优雅回退为原文**,绝不阻断构建。HelloGitHub 已是
+  中文,`isChinese()` 自动跳过。
 - **项目名 / 仓库名 / 作者名永不翻译**(如 `dolthub/dolt` 保持原样)。
-- 想要中文阅读:用浏览器自带的"翻译此页"即可,零成本、零设置。
-- **后续升级(非 v1):** 若要统一中文简介,首选**构建时用 LLM(Claude API)翻译**
-  —— 质量最好、技术术语准,代价是需要 Anthropic API key + 每天约几分钱 + 一个
-  GitHub Secret。免费翻译 API(LibreTranslate / MyMemory)为备选,但有额度与
-  术语准确性风险。
+- **前端「中文 / 原文」开关:** 顶部一键切换,默认中文,选择存 `localStorage`;
+  渲染时 `descZh`/`titleZh` 存在且为中文模式则用译文,否则用原文。
+- **后续可升级:** 若要更高的术语翻译质量,可改用 LLM(Claude API)翻译,代价是需要
+  Anthropic API key + 一个 GitHub Secret + 每天约几分钱。
 
 ## 14. 待确认项(请在评审时拍板)
 
