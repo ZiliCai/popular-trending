@@ -171,7 +171,7 @@ body {
 .title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.02em; line-height: 1.18; word-break: break-word; }
 .desc {
   margin: 0; color: var(--ink-2); font-size: 13px; font-weight: 500; line-height: 1.5;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6; line-clamp: 6; overflow: hidden;
 }
 
 /* ============ META + CHIPS ============ */

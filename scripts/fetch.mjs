@@ -8,6 +8,7 @@ import { fetchHnPh } from './sources/hnph.mjs';
 import { validateLatest, failResult } from './normalize.mjs';
 import { translateMany } from './translate.mjs';
 import { enrichItems } from './enrich.mjs';
+import { fetchReadmes } from './readme.mjs';
 
 const OUT = fileURLToPath(new URL('../public/data/latest.json', import.meta.url));
 
@@ -56,11 +57,20 @@ const FILTERED_SOURCES = ['githubTrending', 'recentHighStars'];
 export async function enrichData(data, { fetchImpl = fetch, apiKey = process.env.DEEPSEEK_API_KEY } = {}) {
   if (!apiKey) return false;
   const refs = [];
-  for (const src of Object.values(data.sources)) {
+  for (const [sk, src] of Object.entries(data.sources)) {
     for (const it of src.items || []) {
-      refs.push({ it, _label: it.repo || it.name || it.title || '', _text: (it.kind === 'hn' ? it.title : it.desc) || '' });
+      const full = sk === 'helloGitHub' ? it.name : it.repo;
+      refs.push({
+        it,
+        full: full && full.includes('/') ? full : '',
+        _label: it.repo || it.name || it.title || '',
+        _text: (it.kind === 'hn' ? it.title : it.desc) || '',
+      });
     }
   }
+  // Give the LLM real material: pull each repo's README so descriptions aren't thin.
+  const getReadme = await fetchReadmes(refs.map((r) => r.full));
+  refs.forEach((r) => { r._readme = r.full ? getReadme(r.full) : ''; });
   const enr = await enrichItems(refs, { fetchImpl, apiKey });
   if (!enr) return false;
   refs.forEach((ref, i) => {

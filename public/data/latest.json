@@ -2,7 +2,7 @@
   "updatedAt": "2026-06-18T00:00:00Z",
   "sources": {
     "githubTrending": { "ok": true, "error": null, "items": [
-      { "repo": "dolthub/dolt", "url": "https://github.com/dolthub/dolt", "desc": "Dolt is Git for data — fork, clone, branch and merge a SQL database", "descZh": "Dolt 是数据版的 Git——可 fork、克隆、分支、合并的 SQL 数据库", "descPlain": "把数据库当 Git 用——数据能存版本、开分支、合并", "lang": "Go", "stars": 18500, "todayStars": 320 },
+      { "repo": "dolthub/dolt", "url": "https://github.com/dolthub/dolt", "desc": "Dolt is Git for data — fork, clone, branch and merge a SQL database", "descZh": "Dolt 是数据版的 Git——可 fork、克隆、分支、合并的 SQL 数据库", "descPlain": "把数据库当 Git 用——数据表能像代码一样提交、开分支、合并、回滚，还能 diff 出改了哪行。适合要给数据做版本管理、或多人协作改同一份数据的团队，用的还是熟悉的 SQL。", "lang": "Go", "stars": 18500, "todayStars": 320 },
       { "repo": "gyroflow/gyroflow", "url": "https://github.com/gyroflow/gyroflow", "desc": "用陀螺仪数据做视频防抖", "lang": "Rust", "stars": 7200, "todayStars": 210 }
     ] },
     "recentHighStars": { "ok": true, "error": null, "items": [

@@ -9,6 +9,11 @@ test('buildEnrichMessages lists items with index, label and text', () => {
   assert.ok(msgs[1].content.includes('1. c/d｜(无简介)'));
 });
 
+test('buildEnrichMessages includes the README excerpt when present', () => {
+  const msgs = buildEnrichMessages([{ _label: 'a/b', _text: 'tool', _readme: 'a great tool for X' }]);
+  assert.ok(msgs[1].content.includes('README摘要：a great tool for X'));
+});
+
 test('parseEnrichResponse maps by index from {items:[...]}', () => {
   const out = parseEnrichResponse(JSON.stringify({ items: [
     { i: 1, plain: '第二个', keep: false },

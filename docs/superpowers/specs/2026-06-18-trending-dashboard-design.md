@@ -266,19 +266,24 @@ trending-dashboard/
 - **后续可升级:** 若要更高的术语翻译质量,可改用 LLM(Claude API)翻译,代价是需要
   Anthropic API key + 一个 GitHub Secret + 每天约几分钱。
 
-### 13.3 大白话改写 + 大众向过滤(LLM,可选)
+### 13.3 编辑式改写 + 大众向过滤(LLM,可选)
 - **启用条件:** 配置了 `DEEPSEEK_API_KEY`(GitHub Secret)时启用;否则自动回退到
   §13.2 的 Google 直译、不过滤。
-- **做什么:** 构建时把当天所有条目批量发给 DeepSeek(`deepseek-chat`,一次调用):
-  ① 给每条写一句**大白话中文**简介(`descPlain`,HN 用 `titlePlain`);
-  ② 标记 `keep`(大众向工具/应用/库/学习资源=保留;窄领域科研/论文复现/纯数据集=
-  过滤,拿不准倾向保留)。
+- **抓 README 补料:** 对每个有 GitHub 仓库的条目(三个 GitHub 源)抓取 README 摘要
+  (`scripts/readme.mjs`,带 `GITHUB_TOKEN`,去 markdown 噪声、截断约 1200 字),作为
+  LLM 的素材——避免"无米下锅"导致简介空泛。
+- **做什么:** 把当天所有条目(含 README 摘要)分批发给 DeepSeek(`deepseek-chat`,每批
+  约 18 条防止输出截断):① 写 **2-3 句编辑式中文**简介(`descPlain`,HN 用
+  `titlePlain`)——是什么 + 为什么有意思/亮点 + 适合谁,有信息量不无聊;
+  ② 标记 `keep`(大众向=保留;窄领域科研/论文复现/纯数据集=过滤,拿不准倾向保留)。
 - **过滤范围:** 仅对 `githubTrending` 与 `recentHighStars` 删除 `keep=false` 的条目;
-  HelloGitHub(已人工精选)与 HN·PH 不删,只做大白话改写。
-- **前端优先级:** 中文模式显示 `descPlain || descZh || desc`;「原文」开关仍切回英文。
-- **成本/容错:** 每天 1 次批量调用,成本约几分钱;任何失败都回退到 §13.2 直译,绝不
-  阻断构建。
-- **实现:** `scripts/enrich.mjs`(OpenAI 兼容接口,换 key / baseURL 即可切到别的提供商)。
+  HelloGitHub(已人工精选)与 HN·PH 不删,只做改写。
+- **前端优先级:** 中文模式显示 `descPlain || descZh || desc`;卡片简介放宽到 6 行;
+  「原文」开关仍切回英文。
+- **成本/容错:** 每天 1 次构建,抓 ~50 个 README + 分批 LLM 调用,成本约每天几毛;任何
+  失败都回退到 §13.2 直译,绝不阻断构建。
+- **实现:** `scripts/readme.mjs` + `scripts/enrich.mjs`(OpenAI 兼容接口,换 key /
+  baseURL 即可切到别的提供商)。
 
 ## 14. 待确认项(请在评审时拍板)
 
