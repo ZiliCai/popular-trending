@@ -26,5 +26,5 @@ open public/index.html
 |---|---|---|
 | GitHub Trending | 抓取 github.com/trending | 每日，全语言，前 25 |
 | 近期高星 | GitHub Search API | 近 30 天创建、按 star 排序，前 25 |
-| HelloGitHub | hellogithub.com RSS | 前 15 |
+| HelloGitHub | api.hellogithub.com 官方 API | 前 15（项目级，中文简介） |
 | HN · PH | HN Firebase API + PH RSS | HN 12 + PH 6（PH 暂无票数） |

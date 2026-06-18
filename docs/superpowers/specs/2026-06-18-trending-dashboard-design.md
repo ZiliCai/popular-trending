@@ -80,13 +80,14 @@ export async function fetch(ctx) { ... }
   `language`、`created_at`。
 
 ### 5.3 HelloGitHub — `sources/helloGitHub.mjs`
-- **主方式:** 抓取 HelloGitHub 的 RSS(`https://hellogithub.com/rss`),解析每条
-  (标题、链接、描述)。
-- **待验证 / 小探针(spike):** RSS 条目可能只链到 hellogithub.com 的文章页,而
-  不是 GitHub 仓库直链,且可能没有分类/语言。**实现时先用一小段时间做个 spike**
-  确认最佳取数路径;备用方案是抓取最新月刊页(`/periodical/volume/<N>`)拿
-  项目名 + GitHub 链接 + 分类。
-- **数量:** 约 15 条。
+- **方式:** 调官方项目级 API `https://api.hellogithub.com/v1/`,返回 JSON
+  `{ success, page, has_more, data: [...] }`,每条含 `full_name`(owner/repo)、
+  `title`(中文简介)、`primary_lang`(语言)等。
+- **映射:** `name = full_name`、`url = https://github.com/<full_name>`、
+  `desc = title || summary`(**中文**,这是 HelloGitHub 的价值)、`lang = primary_lang`。
+- **为什么不用 RSS:** `https://hellogithub.com/rss` 实测是**月刊期号**订阅源(122 条
+  全是「第 N 期」→ `/periodical/volume/N`),不是项目级数据,故弃用。
+- **数量:** 前 15 条(API 每页 20)。
 
 ### 5.4 HN · PH — `sources/hnph.mjs`
 - **Hacker News:** 官方 Firebase API —— `GET /v0/topstories.json` 拿 id 列表,

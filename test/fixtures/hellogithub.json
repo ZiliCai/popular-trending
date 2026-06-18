@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "page": 1,
+  "has_more": true,
+  "data": [
+    {
+      "item_id": "abc",
+      "full_name": "t8y2/dbx",
+      "name": "dbx",
+      "title": "轻量级跨平台数据库桌面客户端",
+      "summary": "支持 MySQL、PostgreSQL、SQLite、Redis、MongoDB 等 40+ 种数据库",
+      "primary_lang": "Rust",
+      "clicks_total": 4780
+    },
+    {
+      "item_id": "def",
+      "full_name": "unhappychoice/gittype",
+      "name": "gittype",
+      "title": "把你的代码变成打字游戏关卡",
+      "summary": "用代码练打字",
+      "primary_lang": "Rust",
+      "clicks_total": 1200
+    }
+  ]
+}
