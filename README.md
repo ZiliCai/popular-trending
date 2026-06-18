@@ -11,15 +11,15 @@ open public/index.html
 ```
 
 ## 一次性上线设置（GitHub）
-1. 在 GitHub 新建空仓库 `trending-dashboard`。
-2. 关联并推送本地仓库：
+仓库：`ZiliCai/popular-trending`
+1. 关联并推送本地仓库：
    ```bash
-   git remote add origin git@github.com:<你的用户名>/trending-dashboard.git
+   git remote add origin https://github.com/ZiliCai/popular-trending.git
    git push -u origin main
    ```
-3. 仓库 **Settings → Pages → Build and deployment → Source: GitHub Actions**。
-4. **Actions** 标签 → 选择 "Update & Deploy" → **Run workflow** 跑第一次（或等每天 08:00 自动触发）。
-5. 部署完成后访问 `https://<你的用户名>.github.io/trending-dashboard/`。
+2. 仓库 **Settings → Pages → Build and deployment → Source: GitHub Actions**。
+3. 推送会自动触发 `Update & Deploy`（也支持每天 08:00 定时与手动 Run workflow）。首次若因 Pages 尚未启用而失败，启用后到 **Actions → Run workflow** 重跑一次即可。
+4. 部署完成后访问 `https://ZiliCai.github.io/popular-trending/`。
 
 ## 数据源
 | Tab | 来源 | 说明 |

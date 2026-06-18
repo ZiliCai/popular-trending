@@ -2,6 +2,12 @@
 <rss version="2.0"><channel>
   <title>HelloGitHub</title>
   <item>
+    <title>HelloGitHub 第 122 期</title>
+    <link>https://hellogithub.com/periodical/volume/122</link>
+    <category>月刊</category>
+    <description>有趣的开源项目合集</description>
+  </item>
+  <item>
     <title>gittype</title>
     <link>https://hellogithub.com/repository/abc</link>
     <category>游戏</category>

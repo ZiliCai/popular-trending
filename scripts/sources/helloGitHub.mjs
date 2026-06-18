@@ -9,11 +9,17 @@ export function extractGithubUrl(html) {
   return m ? m[0] : null;
 }
 
+export function isPeriodicalItem(e) {
+  const title = cleanText(e?.title || '');
+  const link = typeof e?.link === 'string' ? e.link : '';
+  return /第\s*\d+\s*期/.test(title) || /\/periodical\//.test(link) || /\/volume\//.test(link);
+}
+
 export function parseHelloGitHubRss(xml, limit = 15) {
   const parser = new XMLParser({ ignoreAttributes: false });
   const doc = parser.parse(xml);
   const raw = doc?.rss?.channel?.item ?? [];
-  const arr = Array.isArray(raw) ? raw : [raw];
+  const arr = (Array.isArray(raw) ? raw : [raw]).filter((e) => !isPeriodicalItem(e));
   return arr.slice(0, limit).map((e) => {
     const desc = cleanText(e.description || '');
     const gh = extractGithubUrl(e.description || '');
