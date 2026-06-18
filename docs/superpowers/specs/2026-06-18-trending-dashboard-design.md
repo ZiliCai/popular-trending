@@ -1,106 +1,102 @@
-# Trending Dashboard — Design Spec
+# Trending Dashboard — 设计文档(Design Spec)
 
-- **Date:** 2026-06-18
-- **Status:** Draft for user review
-- **Repo name (tentative):** `trending-dashboard`
-- **Page title (tentative):** 今日有趣 · Trending Dashboard
+- **日期:** 2026-06-18
+- **状态:** 草案,待用户最终确认
+- **仓库名(暂定):** `trending-dashboard`
+- **页面标题(暂定):** 今日有趣 · Trending Dashboard
 
-## 1. Overview
+## 1. 概述
 
-A self-updating single-page web dashboard that aggregates interesting & trending
-GitHub / tech projects from four sources into one interface. A scheduled GitHub
-Action regenerates the data once a day and deploys the static page to GitHub
-Pages, so the榜单 stays fresh with zero manual work and is reachable from any
-device via a public URL.
+一个**会自动更新**的单页 Web 榜单,把四个来源的"有趣 / 热门" GitHub 与科技
+项目聚合到同一个界面。由一个定时的 GitHub Action 每天重新抓取数据,并把静态
+页面部署到 GitHub Pages —— 榜单零人工维护就能保持新鲜,任何设备都能通过一个
+公开网址访问。
 
-The visual direction is the **"Bento Pop"** mockup selected during brainstorming
-(see `docs/visual-reference-bento.html`).
+视觉方向采用头脑风暴中选定的 **"Bento Pop"** 方案(见
+`docs/visual-reference-bento.html`)。
 
-## 2. Goals
+## 2. 目标
 
-- Aggregate 4 sources into one page: **GitHub Trending**, **近期高星 (recent
-  high-stars)**, **HelloGitHub (有趣项目)**, **HN · PH**.
-- Refresh automatically **once per day** with no manual steps.
-- Look genuinely good (Bento Pop direction), not templated.
-- Free to run and host (GitHub Actions + GitHub Pages).
-- Resilient: one failing source must not break the page.
-- Mobile-friendly (usable at 375px wide).
+- 把 4 个源聚合到一页:**GitHub Trending**、**近期高星**、
+  **HelloGitHub(有趣项目)**、**HN · PH**。
+- **每天自动刷新一次**,无需任何手动步骤。
+- 界面要真好看(Bento Pop 方向),不像模板。
+- 完全免费运行与托管(GitHub Actions + GitHub Pages)。
+- 容错:任何一个源失败都不能让整页崩掉。
+- 移动端友好(375px 宽度可用)。
 
-## 3. Non-goals (v1 — explicitly out of scope)
+## 3. 非目标(v1 明确不做)
 
-- Historical trends / 24h star-delta / rank-change tracking.
-- Email or RSS output.
-- Product Hunt official GraphQL API (OAuth). v1 uses PH RSS.
-- Weekly/monthly toggle, multi-language UI, user accounts, server/database.
+- 历史趋势 / 24 小时涨星 / 排名变化追踪。
+- 邮件或 RSS 输出。
+- Product Hunt 官方 GraphQL API(需 OAuth)。**v1 用 PH 的 RSS;官方 API 作为
+  后续升级**。
+- 周榜/月榜切换、多语言界面、用户账号、服务器/数据库。
 
-## 4. Architecture
+## 4. 架构
 
-Static site + scheduled build. No runtime server.
+静态站点 + 定时构建,无运行时服务器。
 
 ```
-GitHub Actions (cron: daily 00:00 UTC = 08:00 Asia/Shanghai)
+GitHub Actions(cron:每天 00:00 UTC = 北京时间 08:00)
   └─ node scripts/fetch.mjs
-        ├─ sources/githubTrending.mjs   (scrape github.com/trending)
+        ├─ sources/githubTrending.mjs   (抓取 github.com/trending)
         ├─ sources/recentHighStars.mjs  (GitHub Search API)
-        ├─ sources/helloGitHub.mjs      (RSS / monthly volume)
+        ├─ sources/helloGitHub.mjs      (RSS / 月刊页)
         └─ sources/hnph.mjs             (HN Firebase API + PH RSS)
-        → normalize → write public/data/latest.json
-  └─ upload public/ as Pages artifact → deploy to GitHub Pages
-        → https://<user>.github.io/trending-dashboard/
+        → 归一化 → 写出 public/data/latest.json
+  └─ 把 public/ 作为 Pages 制品上传 → 部署到 GitHub Pages
+        → https://<用户名>.github.io/trending-dashboard/
 ```
 
-The browser loads `public/index.html`, which fetches `data/latest.json` at page
-load and renders the four tabs. The page is pure static assets — no build step
-for the frontend.
+浏览器加载 `public/index.html`,在页面加载时拉取 `data/latest.json` 并渲染四个
+tab。页面是纯静态资源,前端**无构建步骤**。
 
-## 5. Data sources
+## 5. 数据源
 
-Each source is an isolated module exposing a uniform interface:
+每个源是一个独立模块,暴露统一接口:
 
 ```js
-// returns { items: NormalizedItem[], ok: boolean, error?: string }
+// 返回 { items: NormalizedItem[], ok: boolean, error?: string }
 export async function fetch(ctx) { ... }
 ```
 
-The orchestrator runs all four with `Promise.allSettled` so a single failure is
-contained.
+编排器用 `Promise.allSettled` 跑这四个,任何单点失败都被隔离。
 
 ### 5.1 GitHub Trending — `sources/githubTrending.mjs`
-- **Method:** scrape `https://github.com/trending?since=daily` (all languages),
-  parse with `cheerio`. Server-side fetch, so no CORS issue.
-- **Per row (`article.Box-row`):** repo full name, description, language,
-  total stars, "stars today".
-- **Count:** top ~25.
-- **Risk:** GitHub may change the trending HTML → parser breaks. Mitigated by
-  isolating the parser and covering it with a saved-HTML fixture test.
+- **方式:** 抓取 `https://github.com/trending?since=daily`(全语言),用
+  `cheerio` 解析。服务端抓取,无 CORS 问题。
+- **每行(`article.Box-row`):** 仓库全名、描述、语言、总 star 数、"今日 star"。
+- **数量:** 约前 25 条。
+- **风险:** GitHub 可能改动 trending 页结构 → 解析失效。缓解:解析逻辑独立,
+  并用一份保存的 HTML 固定样本(fixture)做测试覆盖。
 
 ### 5.2 近期高星 — `sources/recentHighStars.mjs`
-- **Method:** GitHub Search REST API:
-  `GET /search/repositories?q=created:>=<today-30d>&sort=stars&order=desc&per_page=25`.
-- **Auth:** use the Actions-provided `GITHUB_TOKEN` env var to raise rate limits
-  (search is 10 req/min unauthenticated). One request per run.
-- **Fields:** `full_name`, `html_url`, `description`, `stargazers_count`,
-  `language`, `created_at`.
+- **方式:** GitHub Search REST API:
+  `GET /search/repositories?q=created:>=<今天-30天>&sort=stars&order=desc&per_page=25`。
+- **鉴权:** 使用 Actions 自带的 `GITHUB_TOKEN` 环境变量提升额度(搜索接口未鉴权
+  时为 10 次/分钟)。每次运行只请求 1 次。
+- **字段:** `full_name`、`html_url`、`description`、`stargazers_count`、
+  `language`、`created_at`。
 
 ### 5.3 HelloGitHub — `sources/helloGitHub.mjs`
-- **Primary method:** fetch the HelloGitHub RSS feed (`https://hellogithub.com/rss`)
-  and parse items (title, link, description).
-- **Open question / spike:** RSS items may link to hellogithub.com article pages
-  rather than directly to the GitHub repo, and may not expose category/language.
-  **Implementation must begin with a short spike** to confirm the best access
-  path; fallback is scraping the latest monthly volume page
-  (`/periodical/volume/<N>`) for project name + GitHub url + category.
-- **Count:** ~15.
+- **主方式:** 抓取 HelloGitHub 的 RSS(`https://hellogithub.com/rss`),解析每条
+  (标题、链接、描述)。
+- **待验证 / 小探针(spike):** RSS 条目可能只链到 hellogithub.com 的文章页,而
+  不是 GitHub 仓库直链,且可能没有分类/语言。**实现时先用一小段时间做个 spike**
+  确认最佳取数路径;备用方案是抓取最新月刊页(`/periodical/volume/<N>`)拿
+  项目名 + GitHub 链接 + 分类。
+- **数量:** 约 15 条。
 
 ### 5.4 HN · PH — `sources/hnph.mjs`
-- **Hacker News:** official Firebase API — `GET /v0/topstories.json` for ids,
-  then `GET /v0/item/<id>.json` for the top ~12 (title, url, score=points,
-  descendants=comments). No auth.
-- **Product Hunt:** RSS feed (`https://www.producthunt.com/feed`), top ~6
-  (title, tagline, link). **Vote counts are not reliably available via RSS and
-  may be omitted in v1.**
+- **Hacker News:** 官方 Firebase API —— `GET /v0/topstories.json` 拿 id 列表,
+  再 `GET /v0/item/<id>.json` 取前约 12 条(标题、url、score=点数、
+  descendants=评论数)。无需鉴权。
+- **Product Hunt:** **RSS 源**(`https://www.producthunt.com/feed`),取前约 6 条
+  (标题、简介、链接)。**RSS 通常不带票数(votes),v1 暂不显示票数;后续可升级
+  官方 API 补上**(官方 API 非商业用途免费,需注册应用拿 token)。
 
-## 6. Data schema — `public/data/latest.json`
+## 6. 数据结构 — `public/data/latest.json`
 
 ```json
 {
@@ -133,42 +129,39 @@ contained.
         { "kind": "hn", "title": "…", "url": "https://...",
           "points": 412, "comments": 156 },
         { "kind": "ph", "title": "Kami", "url": "https://...",
-          "desc": "…", "votes": 640 }
+          "desc": "…" }
       ]
     }
   }
 }
 ```
 
-Per-source `ok`/`error` lets the frontend show a small "本次未更新" badge on a
-tab whose fetch failed, without breaking the rest of the page.
+每个源带 `ok`/`error`,这样前端可以在某个抓取失败的 tab 上显示一个小小的
+"本次未更新"标记,而不影响其它部分。(PH 走 RSS 时,条目不含 `votes` 字段。)
 
-## 7. Frontend (visual: Bento Pop)
+## 7. 前端(视觉:Bento Pop)
 
-Canonical look = `docs/visual-reference-bento.html`. The implementation ports
-that mockup's CSS/JS into real assets and wires them to `data/latest.json`
-instead of the embedded sample.
+最终视觉以 `docs/visual-reference-bento.html` 为准。实现时把这份样稿的 CSS/JS
+落成正式资源文件,并改为读取 `data/latest.json`,而非内嵌的示例数据。
 
-- **Files:** `public/index.html`, `public/style.css`, `public/app.js`.
-- **Layout:** bento grid; the top item per active tab gets a hero tile flooded
-  in that source's signature color; remaining items in varying-size tiles.
-- **Palette:** cream canvas + near-black ink (AA), four source colors
-  (electric violet / burnt amber / hot magenta / deep teal) + vermilion fire
-  accent; full dark theme via `data-theme`.
-- **Signature:** hard offset "sticker" shadows (no blur) that grow on hover and
-  snap inward on press; big tabular-figure numbers for the data.
-- **Components:** 4-tab segmented nav (GitHub Trending / 近期高星 / HelloGitHub /
-  HN · PH), live search box filtering visible tiles, light/dark toggle,
-  "最后更新 <time>" in the header.
-- **Behavior:** tab switch + search are vanilla JS over the loaded JSON; cards
-  link out (`target="_blank" rel="noopener"`).
-- **Responsive:** tiles collapse to a single column at 375px.
-- **A11y:** `:focus-visible` states, AA contrast, `prefers-reduced-motion`
-  disables the shadow/scale transitions.
-- **Loading/empty/error states:** skeleton or "加载中…" before JSON resolves; a
-  per-tab "本次未更新" notice when `sources.<x>.ok === false`.
+- **文件:** `public/index.html`、`public/style.css`、`public/app.js`。
+- **布局:** bento 网格;当前 tab 的第一条用一个灌满该源主题色的 hero 大块,其余
+  用大小不一的方块。
+- **配色:** 奶油底 + 近黑墨字(AA 对比),四个源各占一色(电光紫 / 焦糖琥珀 /
+  品红 / 深青)+ 朱红火焰强调色;通过 `data-theme` 提供完整暗色主题。
+- **标志性细节:** 硬质偏移"贴纸阴影"(无模糊),悬停时变大、按下时内缩;数据用
+  大号等宽数字(tabular figures)。
+- **组件:** 4 个 tab 的分段导航(GitHub Trending / 近期高星 / HelloGitHub /
+  HN · PH)、实时过滤可见方块的搜索框、明暗切换、页头的"最后更新 <时间>"。
+- **行为:** 切换 tab、搜索均为原生 JS 操作已加载的 JSON;卡片外链
+  (`target="_blank" rel="noopener"`)。
+- **响应式:** 375px 宽度时方块塌缩为单列。
+- **无障碍:** `:focus-visible` 焦点态、AA 对比、`prefers-reduced-motion` 时关闭
+  阴影/缩放过渡。
+- **加载/空/错误态:** JSON 解析前显示骨架屏或"加载中…";当
+  `sources.<x>.ok === false` 时,该 tab 显示"本次未更新"提示。
 
-## 8. Repository structure
+## 8. 仓库结构
 
 ```
 trending-dashboard/
@@ -176,19 +169,19 @@ trending-dashboard/
     index.html
     style.css
     app.js
-    data/latest.json          # generated by the Action
+    data/latest.json          # 由 Action 生成
   scripts/
-    fetch.mjs                 # orchestrator
-    normalize.mjs             # shared helpers + schema constants
+    fetch.mjs                 # 编排器
+    normalize.mjs             # 公共辅助函数 + schema 常量
     sources/
       githubTrending.mjs
       recentHighStars.mjs
       helloGitHub.mjs
       hnph.mjs
   test/
-    githubTrending.test.mjs   # parser test against saved HTML fixture
+    githubTrending.test.mjs   # 用保存的 HTML 固定样本测试解析
     hnph.test.mjs
-    schema.test.mjs           # validates generated JSON shape
+    schema.test.mjs           # 校验生成的 JSON 结构
     fixtures/
   .github/workflows/update.yml
   package.json
@@ -198,56 +191,53 @@ trending-dashboard/
     superpowers/specs/2026-06-18-trending-dashboard-design.md
 ```
 
-- **Dependencies (kept minimal):** `cheerio` (HTML parse). RSS parsed with a
-  small XML parser (`fast-xml-parser`) or a hand-rolled regex for the few fields
-  needed. Tests use the built-in `node:test` runner (no extra dep).
-- **Node:** ESM (`.mjs`), Node 20+ (CI uses `actions/setup-node`).
+- **依赖(尽量精简):** `cheerio`(解析 HTML)。RSS 用一个小型 XML 解析器
+  (`fast-xml-parser`),或针对需要的少数字段手写解析。测试用内置的 `node:test`
+  (无额外依赖)。
+- **Node:** ESM(`.mjs`),Node 20+(CI 用 `actions/setup-node`)。
 
-## 9. CI / scheduling — `.github/workflows/update.yml`
+## 9. CI / 定时 — `.github/workflows/update.yml`
 
-- **Triggers:** `schedule: cron '0 0 * * *'` (daily 00:00 UTC = 08:00 CST) +
-  `workflow_dispatch` (manual run button).
-- **Steps:** checkout → setup-node → `npm ci` → `node scripts/fetch.mjs`
-  (with `GITHUB_TOKEN` in env) → `actions/upload-pages-artifact` on `public/` →
-  `actions/deploy-pages`.
-- **Permissions:** `pages: write`, `id-token: write`, `contents: read`.
-- v1 deploys the artifact directly (no commit of generated data). Keeping a git
-  history of `latest.json` is a possible future nicety, not v1.
+- **触发:** `schedule: cron '0 0 * * *'`(每天 00:00 UTC = 北京时间 08:00)+
+  `workflow_dispatch`(手动运行按钮)。
+- **步骤:** checkout → setup-node → `npm ci` → `node scripts/fetch.mjs`
+  (env 里带 `GITHUB_TOKEN`)→ `actions/upload-pages-artifact`(目标 `public/`)
+  → `actions/deploy-pages`。
+- **权限:** `pages: write`、`id-token: write`、`contents: read`。
+- v1 直接部署制品(不把生成的数据提交回仓库)。保留 `latest.json` 的 git 历史
+  是将来可加的小功能,非 v1 必需。
 
-## 10. Deployment (one-time manual setup)
+## 10. 部署(一次性手动设置)
 
-`gh` CLI is not installed, so the user does the GitHub side by hand:
-1. Create an empty GitHub repo `trending-dashboard`.
-2. Push the local project (Claude provides the exact commands).
-3. Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. First run via the workflow's "Run workflow" button (or wait for the cron).
+由于未安装 `gh` CLI,GitHub 那侧由用户手动完成:
+1. 在 GitHub 上新建空仓库 `trending-dashboard`。
+2. 把本地项目推上去(Claude 会给出确切命令)。
+3. 仓库 **Settings → Pages → Build and deployment → Source: GitHub Actions**。
+4. 用工作流的 "Run workflow" 按钮跑第一次(或等定时触发)。
 
-## 11. Testing strategy
+## 11. 测试策略
 
-- **Per-source parsers:** unit tests against saved fixtures (no live network in
-  CI) asserting the normalized shape — especially the Trending scraper.
-- **Schema test:** validate a generated `latest.json` against the expected shape;
-  fails the build on drift.
-- **Manual:** open the deployed page, switch tabs, search, toggle theme, check
-  375px width.
-- Built with TDD where practical (write the normalizer test from a fixture, then
-  the parser).
+- **各源解析器:** 针对保存的固定样本做单元测试(CI 中不依赖实时网络),断言
+  归一化后的结构 —— 尤其是 Trending 解析器。
+- **schema 测试:** 校验生成的 `latest.json` 是否符合预期结构;结构漂移则构建失败。
+- **手动:** 打开已部署页面,切 tab、搜索、明暗切换,检查 375px 宽度。
+- 在可行处采用 TDD(先从固定样本写归一化测试,再写解析器)。
 
-## 12. Risks & mitigations
+## 12. 风险与缓解
 
-| Risk | Mitigation |
+| 风险 | 缓解 |
 |---|---|
-| GitHub Trending HTML changes → scraper breaks | Isolated parser + fixture test; clear failure logged; page still renders other 3 sources |
-| HelloGitHub access path uncertain | Start implementation with a short spike; RSS primary, volume-page scrape fallback |
-| PH votes unavailable via RSS | Show PH items without votes in v1; note as known limitation |
-| Search API rate limit | Use Actions `GITHUB_TOKEN`; one request per run |
-| Pages setup is manual | Documented step-by-step; `workflow_dispatch` for first run |
+| GitHub Trending 页面结构变动 → 解析失效 | 解析器独立 + 固定样本测试;失败清晰记录;整页仍渲染其它 3 个源 |
+| HelloGitHub 取数路径不确定 | 实现先做小 spike;RSS 为主,月刊页抓取为备 |
+| PH 走 RSS 拿不到票数 | v1 PH 卡片不显示票数;记为已知限制,后续官方 API 补上 |
+| Search API 额度限制 | 用 Actions `GITHUB_TOKEN`;每次运行只请求 1 次 |
+| Pages 设置需手动 | 提供逐步说明;`workflow_dispatch` 用于首跑 |
 
-## 13. Open questions (confirm during review)
+## 13. 待确认项(请在评审时拍板)
 
-1. Repo name `trending-dashboard` and page title "今日有趣 · Trending Dashboard"
-   — OK, or prefer something else?
-2. Daily refresh at 08:00 CST — confirmed? (More frequent is possible.)
-3. PH via RSS (votes possibly omitted) — acceptable for v1?
-4. Per-source item counts (Trending 25 / 近期高星 25 / HelloGitHub 15 / HN 12 /
-   PH 6) — reasonable defaults?
+1. 仓库名 `trending-dashboard`、页面标题"今日有趣 · Trending Dashboard"
+   —— 可以吗,还是想换别的?
+2. 每天北京时间 08:00 刷新一次 —— 够吗?(可以更频繁。)
+3. ~~PH 取数方式~~ —— **已定:v1 用 RSS,后续升级官方 API。**
+4. 每源条数(Trending 25 / 近期高星 25 / HelloGitHub 15 / HN 12 / PH 6)
+   —— 默认合理吗?
