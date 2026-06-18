@@ -8,7 +8,7 @@ export function sinceDate(now = new Date(), daysAgo = 30) {
 }
 
 export function buildSearchUrl(since, perPage = 25) {
-  const q = encodeURIComponent(`created:>=${since} sort:stars`);
+  const q = encodeURIComponent(`created:>=${since}`);
   return `${API}?q=${q}&sort=stars&order=desc&per_page=${perPage}`;
 }
 

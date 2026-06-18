@@ -30,14 +30,13 @@ export async function fetchHn({ limit = 12, fetchImpl = fetch } = {}) {
   const idsRes = await fetchImpl(HN_TOP);
   if (!idsRes.ok) throw new Error(`HN HTTP ${idsRes.status}`);
   const ids = (await idsRes.json()).slice(0, limit);
-  const items = [];
-  for (const id of ids) {
+  const fetched = await Promise.all(ids.map(async (id) => {
     const r = await fetchImpl(HN_ITEM(id));
-    if (!r.ok) continue;
+    if (!r.ok) return null;
     const it = await r.json();
-    if (it && it.title) items.push(mapHnItem(it));
-  }
-  return items;
+    return it && it.title ? mapHnItem(it) : null;
+  }));
+  return fetched.filter(Boolean);
 }
 
 export async function fetchPh({ limit = 6, fetchImpl = fetch } = {}) {

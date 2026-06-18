@@ -27,6 +27,13 @@ test('cardHtml omits desc line when empty and links out safely', () => {
   assert.ok(!noDesc.includes('class="desc"'));
 });
 
+test('cardHtml marks hero card when isHero is true', () => {
+  const hero = cardHtml({ repo: 'a/b', url: 'https://x', desc: 'hi', stars: 1 }, 'githubTrending', true);
+  assert.ok(hero.includes('class="card hero source-githubTrending"'));
+  const normal = cardHtml({ repo: 'a/b', url: 'https://x', desc: 'hi', stars: 1 }, 'githubTrending');
+  assert.ok(normal.includes('class="card source-githubTrending"') && !normal.includes('hero'));
+});
+
 test('cardHtml shows topics chips only for recentHighStars with empty desc', () => {
   const out = cardHtml({ repo: 'a/b', url: 'https://x', desc: '', stars: 2907, lang: '', topics: ['ai', 'agent'] }, 'recentHighStars');
   assert.ok(out.includes('class="chip"') && out.includes('ai') && out.includes('agent'));

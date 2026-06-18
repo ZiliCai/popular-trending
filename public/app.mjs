@@ -17,7 +17,7 @@ function render() {
   }
   const items = filterItems(src.items || [], searchEl.value.trim());
   grid.innerHTML = items.length
-    ? items.map((it, i) => cardHtml(it, activeSource).replace('class="card', i === 0 ? 'class="card hero' : 'class="card')).join('')
+    ? items.map((it, i) => cardHtml(it, activeSource, i === 0)).join('')
     : `<p class="state">没有匹配的项目</p>`;
 }
 

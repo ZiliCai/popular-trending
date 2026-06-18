@@ -23,7 +23,7 @@ function langSpan(lang) {
   return lang ? `<span class="lang"><span class="dot"></span>${escapeHtml(lang)}</span>` : '';
 }
 
-export function cardHtml(item, sourceKey) {
+export function cardHtml(item, sourceKey, isHero = false) {
   const title = escapeHtml(item.repo || item.name || item.title || '');
   const url = escapeHtml(item.url || '#');
   const desc = item.desc ? `<p class="desc">${escapeHtml(item.desc)}</p>` : '';
@@ -46,5 +46,6 @@ export function cardHtml(item, sourceKey) {
       ? `<div class="meta"><span class="points">▲ ${formatCount(item.points)}</span><span class="comments">${formatCount(item.comments)} 评论</span></div>`
       : `<div class="meta"><span class="chip ph">Product Hunt</span></div>`;
   }
-  return `<a class="card source-${sourceKey}" href="${url}" target="_blank" rel="noopener"><h3 class="title">${title}</h3>${desc}${meta}</a>`;
+  const cls = isHero ? `card hero source-${sourceKey}` : `card source-${sourceKey}`;
+  return `<a class="${cls}" href="${url}" target="_blank" rel="noopener"><h3 class="title">${title}</h3>${desc}${meta}</a>`;
 }
