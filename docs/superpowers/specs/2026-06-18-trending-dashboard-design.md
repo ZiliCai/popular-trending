@@ -233,7 +233,27 @@ trending-dashboard/
 | Search API 额度限制 | 用 Actions `GITHUB_TOKEN`;每次运行只请求 1 次 |
 | Pages 设置需手动 | 提供逐步说明;`workflow_dispatch` 用于首跑 |
 
-## 13. 待确认项(请在评审时拍板)
+## 13. 数据质量与边界情况
+
+### 13.1 缺少简介
+- **归一化:** 取不到 description 时设为空字符串,不报错。
+- **前端:** 不渲染简介行;Bento 方块在有/无简介时都保持版式完整,不留空洞;
+  **不显示"暂无简介"之类的占位文字**。
+- HN 条目本来就只有标题、没有简介,属正常情况。
+- **可选增强(v1.1):** GitHub 项目无简介时,用其 `topics` 标签作为补充,显示为
+  小 chip(Search API 已返回 topics)。非 v1 必需。
+
+### 13.2 语言(简介非中文)
+- **决定:v1 保持原文。** 界面 UI 为中文,但**项目简介保持来源原文**
+  (GitHub Trending / 近期高星 / HN 多为英文,HelloGitHub 为中文)。
+- **项目名 / 仓库名 / 作者名永不翻译**(如 `dolthub/dolt` 保持原样)。
+- 想要中文阅读:用浏览器自带的"翻译此页"即可,零成本、零设置。
+- **后续升级(非 v1):** 若要统一中文简介,首选**构建时用 LLM(Claude API)翻译**
+  —— 质量最好、技术术语准,代价是需要 Anthropic API key + 每天约几分钱 + 一个
+  GitHub Secret。免费翻译 API(LibreTranslate / MyMemory)为备选,但有额度与
+  术语准确性风险。
+
+## 14. 待确认项(请在评审时拍板)
 
 1. 仓库名 `trending-dashboard`、页面标题"今日有趣 · Trending Dashboard"
    —— 可以吗,还是想换别的?
