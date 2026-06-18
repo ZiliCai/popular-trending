@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+  <title>HelloGitHub</title>
+  <item>
+    <title>gittype</title>
+    <link>https://hellogithub.com/repository/abc</link>
+    <category>游戏</category>
+    <description>把你的代码变成打字游戏关卡 https://github.com/unhappychoice/gittype</description>
+  </item>
+  <item>
+    <title>opentoonz</title>
+    <link>https://hellogithub.com/repository/def</link>
+    <category>工具</category>
+    <description>吉卜力同源的开源 2D 动画软件</description>
+  </item>
+</channel></rss>
