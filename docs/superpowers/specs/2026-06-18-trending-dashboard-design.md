@@ -240,8 +240,18 @@ trending-dashboard/
 - **前端:** 不渲染简介行;Bento 方块在有/无简介时都保持版式完整,不留空洞;
   **不显示"暂无简介"之类的占位文字**。
 - HN 条目本来就只有标题、没有简介,属正常情况。
-- **可选增强(v1.1):** GitHub 项目无简介时,用其 `topics` 标签作为补充,显示为
-  小 chip(Search API 已返回 topics)。非 v1 必需。
+- **不按"有无简介"过滤仓库。** 依据(实测):GitHub Search API 会返回
+  `description: null` 的高星仓库(如 `FoundZiGu/GuJumpgate` 3,902⭐、
+  `MisoLabsAI/MisoTTS` 2,907⭐),按简介过滤会误伤好项目。同类项目
+  (`huchenme/github-trending-api`、`bonfy/github-trending`、`EvanLi/Github-Ranking`)
+  也都**不按简介过滤**,只是展示难看(留字面 `None` 或孤零零的冒号);我们取其
+  "保留仓库"、但展示更干净(省略整行)。
+- **hypothesis 备注:** "无简介 ⇒ 低星 ⇒ 自然被过滤" 仅对 **Trending 页成立**
+  (实测前 20 名 0 个无简介),对 **近期高星(Search API)不成立**,故仍需优雅
+  处理而非依赖过滤。
+- **topics 兜底(v1,仅"近期高星"源):** 该源用 Search API,本就返回 `topics`;当
+  高星仓库无简介时,用 topics 小 chip 补一行,避免空卡。Trending 源不返回 topics
+  且实测基本都有简介,无需处理。
 
 ### 13.2 语言(简介非中文)
 - **决定:v1 保持原文。** 界面 UI 为中文,但**项目简介保持来源原文**
