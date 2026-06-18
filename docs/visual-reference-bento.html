@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trending Dashboard · 趋势看板</title>
+<style>
+  /* ============================================================
+     04 · BENTO POP
+     A playful, high-contrast bento-box dashboard.
+     Signature: thick ink rules + hard offset "sticker" shadows,
+     warm-cream canvas, four saturated source colors as bold blocks.
+     ============================================================ */
+
+  :root {
+    /* ---- spacing scale (4 / 8 base) ---- */
+    --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+    --s5: 20px; --s6: 24px; --s7: 32px; --s8: 48px; --s9: 64px;
+
+    /* ---- radii (chunky, bento) ---- */
+    --r-xs: 8px;
+    --r-sm: 12px;
+    --r-md: 16px;
+    --r-lg: 22px;
+    --r-xl: 28px;
+
+    /* ---- modular type scale (~1.22) ---- */
+    --t-2xs: 11px;
+    --t-xs:  12px;
+    --t-sm:  13px;
+    --t-base:15px;
+    --t-md:  18px;
+    --t-lg:  22px;
+    --t-xl:  28px;
+    --t-2xl: 36px;
+    --t-3xl: 52px;
+
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+            "Helvetica Neue", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+
+    /* ---- four signature source colors ---- */
+    --c-gh:    #6C4DF6;  /* GitHub Trending — electric violet */
+    --c-star:  #E8820C;  /* 近期高星 — burnt amber */
+    --c-hello: #E6357F;  /* HelloGitHub — hot magenta */
+    --c-hn:    #0E9D8E;  /* HN · PH — deep teal */
+    --accent:  #F0410E;  /* fire / today — vermilion */
+  }
+
+  /* ---- LIGHT (default) ---- */
+  :root, [data-theme="light"] {
+    --bg:         #F4EFE4;
+    --surface:    #FFFFFF;
+    --surface-2:  #FBF7EE;
+    --ink:        #16130D;   /* primary text  */
+    --ink-2:      #4A4234;   /* secondary     */
+    --ink-3:      #7A7160;   /* tertiary      */
+    --line:       #16130D;   /* hard ink rule */
+    --line-soft:  #E3DBCB;
+    --on-color:   #FFFFFF;
+    --chip-bg:    #F4EFE4;
+    --chip-line:  #E3DBCB;
+    /* hard offset shadow — the bento "sticker" signature */
+    --sticker:    4px 4px 0 var(--line);
+    --sticker-lg: 6px 6px 0 var(--line);
+    --sticker-press: 2px 2px 0 var(--line);
+    --rule: 2.5px;
+  }
+
+  /* ---- DARK ---- */
+  [data-theme="dark"] {
+    --bg:         #14121A;
+    --surface:    #1E1B27;
+    --surface-2:  #262232;
+    --ink:        #F6F2FF;
+    --ink-2:      #C3BBD6;
+    --ink-3:      #8A819E;
+    --line:       #000000;
+    --line-soft:  #322E3E;
+    --on-color:   #FFFFFF;
+    --chip-bg:    #2A2636;
+    --chip-line:  #38333F;
+    --sticker:    4px 4px 0 #000;
+    --sticker-lg: 6px 6px 0 #000;
+    --sticker-press: 2px 2px 0 #000;
+    --rule: 2.5px;
+
+    --c-gh:    #9784FF;
+    --c-star:  #FFA836;
+    --c-hello: #FF5C9E;
+    --c-hn:    #2FCBB9;
+    --accent:  #FF6A3D;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image:
+      radial-gradient(60% 50% at 100% -5%, color-mix(in srgb, var(--c-gh) 12%, transparent), transparent 60%),
+      radial-gradient(55% 45% at -5% 105%, color-mix(in srgb, var(--c-hn) 10%, transparent), transparent 55%);
+    background-attachment: fixed;
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(16px, 3.5vw, 36px);
+  }
+
+  .num { font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+
+  /* ============ HEADER ============ */
+  header.top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s4);
+    margin-bottom: var(--s7);
+  }
+  .brand { display: flex; align-items: center; gap: var(--s4); min-width: 0; }
+  .logo {
+    flex: none;
+    width: 54px; height: 54px;
+    border-radius: var(--r-md);
+    background: var(--c-gh);
+    background-image: linear-gradient(135deg, var(--c-hello), var(--c-gh) 55%, var(--c-hn));
+    border: var(--rule) solid var(--line);
+    box-shadow: var(--sticker);
+    display: grid; place-items: center;
+    color: #fff;
+    transform: rotate(-5deg);
+  }
+  .logo svg { width: 28px; height: 28px; }
+  .title-block h1 {
+    font-size: var(--t-xl);
+    font-weight: 800;
+    letter-spacing: -.025em;
+    line-height: 1.02;
+  }
+  .title-block h1 .dim { color: var(--ink-3); font-weight: 700; }
+  .title-block .sub {
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+    font-weight: 600;
+    margin-top: 3px;
+  }
+  .head-right { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    background: var(--surface);
+    border: var(--rule) solid var(--line);
+    border-radius: 999px;
+    padding: 7px 14px 7px 12px;
+    font-size: var(--t-xs);
+    font-weight: 700;
+    color: var(--ink-2);
+    box-shadow: var(--sticker-press);
+    white-space: nowrap;
+  }
+  .stamp .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--c-hn);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-hn) 28%, transparent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
+  .stamp time { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .icon-btn {
+    width: 46px; height: 46px;
+    flex: none;
+    border-radius: var(--r-sm);
+    border: var(--rule) solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    display: grid; place-items: center;
+    box-shadow: var(--sticker);
+    transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+  }
+  .icon-btn svg { width: 20px; height: 20px; }
+  .icon-btn:hover { transform: translate(-1px,-1px); box-shadow: var(--sticker-lg); }
+  .icon-btn:active { transform: translate(2px,2px); box-shadow: var(--sticker-press); }
+  .icon-btn:focus-visible { outline: 3px solid var(--c-gh); outline-offset: 3px; }
+  .icon-btn .sun { display: none; }
+  [data-theme="dark"] .icon-btn .sun { display: block; }
+  [data-theme="dark"] .icon-btn .moon { display: none; }
+
+  /* ============ CONTROL BAR ============ */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s4);
+    align-items: stretch;
+    margin-bottom: var(--s7);
+  }
+
+  /* ---- segmented tab control ---- */
+  .tabs {
+    display: flex;
+    gap: var(--s1);
+    padding: 5px;
+    background: var(--surface);
+    border: var(--rule) solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sticker);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    appearance: none;
+    border: 2px solid transparent;
+    background: transparent;
+    color: var(--ink-2);
+    font-family: inherit;
+    font-size: var(--t-sm);
+    font-weight: 700;
+    letter-spacing: -.01em;
+    padding: 8px 14px;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    white-space: nowrap;
+    transition: color .15s ease, background .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .tab .swatch {
+    width: 10px; height: 10px; border-radius: 3px;
+    background: var(--tab-c);
+    border: 1.5px solid var(--line);
+    transition: transform .15s ease;
+  }
+  .tab .cnt {
+    font-size: var(--t-2xs); font-weight: 800;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    background: var(--chip-bg);
+    border-radius: 6px;
+    padding: 1px 6px;
+    min-width: 20px; text-align: center;
+  }
+  .tab:hover { color: var(--ink); background: var(--surface-2); }
+  .tab:hover .swatch { transform: rotate(-8deg) scale(1.12); }
+  .tab:focus-visible { outline: 3px solid var(--tab-c); outline-offset: 2px; }
+  .tab[aria-selected="true"] {
+    background: var(--tab-c);
+    color: var(--on-color);
+    border-color: var(--line);
+    box-shadow: var(--sticker-press);
+  }
+  .tab[aria-selected="true"] .swatch { background: #fff; }
+  .tab[aria-selected="true"] .cnt {
+    color: var(--on-color);
+    background: rgba(0,0,0,.22);
+  }
+
+  /* ---- search ---- */
+  .search {
+    position: relative;
+    flex: 1 1 220px;
+    min-width: 170px;
+    display: flex;
+  }
+  .search svg.find {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; color: var(--ink-3); pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    font-family: inherit;
+    font-size: var(--t-base);
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--surface);
+    border: var(--rule) solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 11px 46px 11px 44px;
+    box-shadow: var(--sticker);
+    transition: box-shadow .12s ease, transform .12s ease;
+  }
+  .search input::placeholder { color: var(--ink-3); font-weight: 600; }
+  .search input:focus {
+    outline: none;
+    transform: translate(-1px,-1px);
+    box-shadow: var(--sticker-lg), 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
+  }
+  .search .clear {
+    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--line); background: var(--surface); color: var(--ink);
+    cursor: pointer; display: none; place-items: center;
+    transition: background .15s ease, color .15s ease;
+  }
+  .search .clear svg { width: 13px; height: 13px; }
+  .search .clear:hover { background: var(--accent); color: #fff; }
+  .search .clear:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .search.has-value .clear { display: grid; }
+
+  /* ============ PANELS ============ */
+  .panel { display: none; }
+  .panel.active { display: block; animation: pop .3s cubic-bezier(.22,1,.36,1); }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .section-label {
+    display: flex; align-items: center; gap: var(--s3);
+    margin-bottom: var(--s5);
+    flex-wrap: wrap;
+  }
+  .section-label .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: var(--t-xs); font-weight: 800;
+    letter-spacing: .02em;
+    color: var(--on-color);
+    background: var(--tab-c);
+    border: var(--rule) solid var(--line);
+    box-shadow: var(--sticker-press);
+    padding: 5px 12px; border-radius: 999px;
+  }
+  .section-label .pill svg { width: 14px; height: 14px; }
+  .section-label .desc { font-size: var(--t-sm); color: var(--ink-2); font-weight: 600; }
+
+  /* ---- bento grid ---- */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--s4);
+    grid-auto-rows: 1fr;
+  }
+
+  /* ============ CARD (base tile) ============ */
+  .card {
+    position: relative;
+    grid-column: span 2;
+    background: var(--surface);
+    border: var(--rule) solid var(--line);
+    border-radius: var(--r-lg);
+    padding: var(--s5);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    box-shadow: var(--sticker);
+    overflow: hidden;
+    transition: transform .14s cubic-bezier(.22,1,.36,1), box-shadow .14s ease;
+    isolation: isolate;
+  }
+  /* color block top-rule — bento personality */
+  .card::before {
+    content: "";
+    position: absolute; inset: 0 0 auto 0;
+    height: 7px;
+    background: var(--card-c);
+    z-index: 0;
+  }
+  .card > * { position: relative; z-index: 1; }
+  .card:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: var(--sticker-lg);
+  }
+  .card:active { transform: translate(2px,2px); box-shadow: var(--sticker-press); }
+  .card:focus-visible { outline: 3px solid var(--card-c); outline-offset: 3px; }
+
+  /* ---- HERO (featured colored block) ---- */
+  .card.hero {
+    grid-column: span 4;
+    grid-row: span 2;
+    background: var(--card-c);
+    background-image:
+      radial-gradient(120% 110% at 100% 0%, color-mix(in srgb, #fff 22%, transparent), transparent 55%);
+    color: #fff;
+    padding: var(--s7);
+    justify-content: space-between;
+  }
+  .card.hero::before { display: none; }
+  .card.hero .repo-name, .card.hero .desc { color: #fff; }
+
+  .hero-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
+  .hero-flag {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: var(--t-xs); font-weight: 800; letter-spacing: .03em;
+    background: rgba(0,0,0,.22);
+    padding: 6px 12px; border-radius: 999px;
+    border: 2px solid rgba(255,255,255,.35);
+    color: #fff;
+  }
+  .hero-flag svg { width: 14px; height: 14px; }
+  .hero-rank {
+    font-size: var(--t-md); font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255,255,255,.8);
+  }
+  .card.hero .repo-name {
+    font-size: var(--t-2xl); font-weight: 800;
+    letter-spacing: -.03em; line-height: 1.04;
+    margin-bottom: var(--s2);
+  }
+  .card.hero .repo-name .owner { color: rgba(255,255,255,.72); }
+  .card.hero .desc {
+    font-size: var(--t-md); color: rgba(255,255,255,.94);
+    -webkit-line-clamp: 3; line-clamp: 3;
+  }
+  .hero-bignum { display: flex; align-items: baseline; gap: var(--s2); margin-top: var(--s4); }
+  .hero-bignum .big {
+    font-size: var(--t-3xl); font-weight: 800; line-height: .85;
+    letter-spacing: -.04em; font-variant-numeric: tabular-nums;
+  }
+  .hero-bignum .unit { font-size: var(--t-md); font-weight: 700; color: rgba(255,255,255,.82); }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s4); }
+  .hero-meta .chip {
+    background: rgba(0,0,0,.2); color: #fff; border-color: rgba(255,255,255,.3);
+  }
+  .hero-meta .chip .lang-dot { border-color: rgba(255,255,255,.6); }
+
+  /* ---- card head row ---- */
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
+  .mark {
+    width: 36px; height: 36px; flex: none;
+    border-radius: 10px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--card-c) 16%, var(--surface));
+    border: 2px solid var(--card-c);
+    color: var(--card-c);
+  }
+  .mark svg { width: 19px; height: 19px; }
+  .rank {
+    font-size: var(--t-md); font-weight: 800; color: var(--card-c);
+    font-variant-numeric: tabular-nums; letter-spacing: -.03em;
+  }
+
+  /* ---- text ---- */
+  .repo-name {
+    font-size: var(--t-md); font-weight: 800; letter-spacing: -.02em;
+    line-height: 1.18; word-break: break-word; color: var(--ink);
+  }
+  .repo-name .owner { color: var(--ink-3); font-weight: 700; }
+  .title-line {
+    font-size: var(--t-base); font-weight: 800; letter-spacing: -.01em;
+    line-height: 1.3; color: var(--ink);
+    display: -webkit-box; -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  }
+  .desc {
+    font-size: var(--t-sm); color: var(--ink-2); font-weight: 500;
+    line-height: 1.5;
+    display: -webkit-box; -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+  }
+  .desc.muted { color: var(--ink-3); font-style: italic; }
+
+  /* ---- the "data" figure ---- */
+  .figure { display: flex; align-items: baseline; gap: 6px; margin-top: var(--s1); }
+  .figure .v {
+    font-size: var(--t-xl); font-weight: 800; letter-spacing: -.03em; line-height: 1;
+    font-variant-numeric: tabular-nums; color: var(--card-c);
+  }
+  .figure .u { font-size: var(--t-xs); font-weight: 700; color: var(--ink-3); }
+
+  /* ---- metadata chips ---- */
+  .meta { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: auto; padding-top: var(--s1); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: var(--t-xs); font-weight: 700;
+    background: var(--chip-bg);
+    border: 2px solid var(--chip-line);
+    color: var(--ink-2);
+    padding: 4px 9px; border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip svg { width: 13px; height: 13px; flex: none; }
+  .chip.stars  { color: var(--c-star);  background: color-mix(in srgb, var(--c-star) 14%, var(--surface));  border-color: color-mix(in srgb, var(--c-star) 40%, transparent); }
+  .chip.today  { color: var(--accent);  background: color-mix(in srgb, var(--accent) 13%, var(--surface));  border-color: color-mix(in srgb, var(--accent) 42%, transparent); }
+  .chip.points { color: var(--c-hn);     background: color-mix(in srgb, var(--c-hn) 14%, var(--surface));     border-color: color-mix(in srgb, var(--c-hn) 42%, transparent); }
+  .chip.votes  { color: var(--c-hello);  background: color-mix(in srgb, var(--c-hello) 13%, var(--surface)); border-color: color-mix(in srgb, var(--c-hello) 40%, transparent); }
+  .chip.cat    { color: var(--card-c);   background: color-mix(in srgb, var(--card-c) 13%, var(--surface));  border-color: color-mix(in srgb, var(--card-c) 42%, transparent); }
+  .chip .lang-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lc,#888); border: 1.5px solid color-mix(in srgb, var(--lc,#888) 60%, var(--line)); }
+
+  /* ---- span variants ---- */
+  .card.wide { grid-column: span 3; }
+
+  /* ---- empty state (outside the bento mosaic) ---- */
+  .empty {
+    display: none;
+    text-align: center;
+    padding: var(--s9) var(--s4);
+    color: var(--ink-2);
+  }
+  .empty.show { display: block; animation: pop .25s ease; }
+  .empty .ill {
+    width: 64px; height: 64px; margin: 0 auto var(--s4);
+    border-radius: var(--r-md);
+    border: var(--rule) solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--sticker);
+    display: grid; place-items: center;
+    transform: rotate(-4deg);
+  }
+  .empty .ill svg { width: 30px; height: 30px; color: var(--ink-3); }
+  .empty .big { font-size: var(--t-md); font-weight: 800; color: var(--ink); margin-bottom: 4px; }
+  .empty .small { font-size: var(--t-sm); font-weight: 600; }
+  .empty .reset {
+    margin-top: var(--s4);
+    font-family: inherit; font-size: var(--t-sm); font-weight: 800;
+    color: var(--on-color); background: var(--accent);
+    border: var(--rule) solid var(--line); box-shadow: var(--sticker);
+    border-radius: var(--r-md); padding: 8px 16px; cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .empty .reset:hover { transform: translate(-1px,-1px); box-shadow: var(--sticker-lg); }
+  .empty .reset:active { transform: translate(2px,2px); box-shadow: var(--sticker-press); }
+  .empty .reset:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    margin-top: var(--s8);
+    padding-top: var(--s5);
+    border-top: var(--rule) dashed var(--line-soft);
+    display: flex; flex-wrap: wrap; gap: var(--s4);
+    align-items: center; justify-content: space-between;
+    font-size: var(--t-xs); color: var(--ink-3); font-weight: 600;
+  }
+  footer .legend { display: flex; flex-wrap: wrap; gap: var(--s4); }
+  footer .legend span { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); font-weight: 700; }
+  footer .legend i { width: 11px; height: 11px; border-radius: 3px; border: 1.5px solid var(--line); display: inline-block; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .bento { grid-template-columns: repeat(4, 1fr); }
+    .card { grid-column: span 2; }
+    .card.hero { grid-column: span 4; grid-row: span 1; }
+    .card.wide { grid-column: span 4; }
+    .card.hero .repo-name { font-size: var(--t-xl); }
+    .hero-bignum .big { font-size: var(--t-2xl); }
+  }
+  @media (max-width: 600px) {
+    :root { --t-xl: 24px; --t-2xl: 30px; --t-3xl: 42px; }
+    header.top { align-items: flex-start; }
+    .head-right { width: 100%; justify-content: space-between; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .tabs { width: 100%; }
+    .bento { grid-template-columns: repeat(2, 1fr); gap: var(--s3); }
+    .card { grid-column: span 1; padding: var(--s4); }
+    .card.hero { grid-column: span 2; grid-row: span 1; padding: var(--s5); }
+    .card.wide { grid-column: span 2; }
+  }
+  /* dedicated 375 / small-phone: single readable column */
+  @media (max-width: 430px) {
+    .wrap { padding: 16px; }
+    .bento { grid-template-columns: 1fr; gap: var(--s3); }
+    .card, .card.hero, .card.wide { grid-column: span 1; }
+    .card { padding: var(--s4); }
+    .card.hero .repo-name { font-size: var(--t-lg); }
+    .hero-bignum .big { font-size: var(--t-2xl); }
+    .title-block h1 { font-size: var(--t-lg); }
+    .stamp { font-size: var(--t-2xs); padding: 6px 11px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2 4 13.5h6.5L9 22l11-12.5h-6.5L15 2H13Z"/>
+        </svg>
+      </div>
+      <div class="title-block">
+        <h1>趋势看板 <span class="dim">·</span> Trending</h1>
+        <div class="sub">聚合 4 个来源的热门技术项目 · 每日刷新</div>
+      </div>
+    </div>
+    <div class="head-right">
+      <div class="stamp">
+        <span class="dot" aria-hidden="true"></span>
+        最后更新&nbsp;<time id="updated">2026-06-18 08:00 UTC+8</time>
+      </div>
+      <button class="icon-btn" id="theme-toggle" aria-label="切换深色 / 浅色模式" title="切换主题">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="tabs" role="tablist" aria-label="数据来源">
+      <button class="tab" role="tab" aria-selected="true"  data-src="githubTrending" style="--tab-c:var(--c-gh)">
+        <span class="swatch" aria-hidden="true"></span>GitHub Trending<span class="cnt num" data-cnt="githubTrending"></span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-src="recentHighStars" style="--tab-c:var(--c-star)">
+        <span class="swatch" aria-hidden="true"></span>近期高星<span class="cnt num" data-cnt="recentHighStars"></span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-src="helloGitHub" style="--tab-c:var(--c-hello)">
+        <span class="swatch" aria-hidden="true"></span>HelloGitHub<span class="cnt num" data-cnt="helloGitHub"></span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-src="hnph" style="--tab-c:var(--c-hn)">
+        <span class="swatch" aria-hidden="true"></span>HN · PH<span class="cnt num" data-cnt="hnph"></span>
+      </button>
+    </div>
+
+    <div class="search" id="search-wrap">
+      <svg class="find" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="search" placeholder="搜索标题 / 仓库 / 描述…  按 /" aria-label="搜索卡片" autocomplete="off">
+      <button class="clear" id="clear-search" aria-label="清除搜索">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main id="panels"></main>
+
+  <footer>
+    <div class="legend">
+      <span><i style="background:var(--c-gh)"></i>GitHub Trending</span>
+      <span><i style="background:var(--c-star)"></i>近期高星</span>
+      <span><i style="background:var(--c-hello)"></i>HelloGitHub</span>
+      <span><i style="background:var(--c-hn)"></i>HN · PH</span>
+    </div>
+    <div>04 · Bento Pop — 离线单文件看板</div>
+  </footer>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const DATA = {
+  "updatedAt": "2026-06-18 08:00 UTC+8",
+  "githubTrending": [
+    { "repo": "dolthub/dolt", "lang": "Go", "desc": "像 Git 一样能版本控制的 SQL 数据库,数据表可 diff / branch / merge", "stars": 18500, "todayStars": 320, "url": "https://github.com/dolthub/dolt" },
+    { "repo": "gyroflow/gyroflow", "lang": "Rust", "desc": "用运动相机陀螺仪数据做视频防抖", "stars": 7200, "todayStars": 210, "url": "https://github.com/gyroflow/gyroflow" },
+    { "repo": "zerolang/zero", "lang": "C++", "desc": "为 AI agent 代码生成而设计的编程语言", "stars": 3400, "todayStars": 540, "url": "https://github.com/zerolang/zero" },
+    { "repo": "opendesign/open-design", "lang": "TypeScript", "desc": "Claude Design 的开源替代", "stars": 9100, "todayStars": 880, "url": "https://github.com/opendesign/open-design" },
+    { "repo": "agentmemory/agentmemory", "lang": "Python", "desc": "给 AI 编程助手做跨会话记忆", "stars": 5600, "todayStars": 430, "url": "https://github.com/agentmemory/agentmemory" }
+  ],
+  "recentHighStars": [
+    { "repo": "whichllm/whichllm", "lang": "Python", "desc": "按硬件帮你挑最合适的本地 LLM", "stars": 4200, "url": "https://github.com/whichllm/whichllm" },
+    { "repo": "models-dev/models.dev", "lang": "TypeScript", "desc": "社区维护的 AI 模型价格 / 能力对比数据库", "stars": 6800, "url": "https://github.com/models-dev/models.dev" },
+    { "repo": "react-doctor/react-doctor", "lang": "JavaScript", "desc": "扫描 React 性能与架构问题的代码体检工具", "stars": 3100, "url": "https://github.com/react-doctor/react-doctor" },
+    { "repo": "homeport/termshot", "lang": "Go", "desc": "把终端输出转成带语法高亮的截图", "stars": 2400, "url": "https://github.com/homeport/termshot" },
+    { "repo": "dbx/dbx", "lang": "Rust", "desc": "支持 40+ 种数据库的轻量跨平台客户端", "stars": 2900, "url": "https://github.com/dbx/dbx" }
+  ],
+  "helloGitHub": [
+    { "name": "gittype", "lang": "Rust", "desc": "把你的代码变成打字游戏关卡", "category": "游戏", "url": "https://github.com/unhappychoice/gittype" },
+    { "name": "opentoonz", "lang": "C++", "desc": "吉卜力工作室同源演化的开源 2D 动画软件", "category": "工具", "url": "https://github.com/opentoonz/opentoonz" },
+    { "name": "egos-2000", "lang": "C", "desc": "仅 2000 行代码实现核心的教学操作系统", "category": "学习", "url": "https://github.com/yhzhang0128/egos-2000" },
+    { "name": "Clawdmeter", "lang": "C", "desc": "ESP32 + 触摸屏做的 Claude 用量仪表盘", "category": "硬件", "url": "https://github.com/example/clawdmeter" },
+    { "name": "cheatreader", "lang": "JavaScript", "desc": "悬浮在桌面的电子书阅读器,支持多种格式", "category": "工具", "url": "https://github.com/example/cheatreader" }
+  ],
+  "hnph": [
+    { "kind": "hn", "title": "Show HN: Folo – an RSS reader that summarizes your timeline", "points": 412, "comments": 156, "url": "https://news.ycombinator.com/item?id=46033915" },
+    { "kind": "hn", "title": "Why SQLite is the database of the decade", "points": 530, "comments": 240, "url": "https://news.ycombinator.com/" },
+    { "kind": "hn", "title": "The architecture behind a 10k-star weekend project", "points": 287, "comments": 98, "url": "https://news.ycombinator.com/" },
+    { "kind": "ph", "title": "Kami", "desc": "为 AI 生成内容做的文档设计模板", "votes": 640, "url": "https://www.producthunt.com/" },
+    { "kind": "ph", "title": "CodexBar", "desc": "menubar 里看 40+ AI 编程工具的额度", "votes": 380, "url": "https://www.producthunt.com/" }
+  ]
+};
+
+const SRC_META = {
+  githubTrending: { color: 'var(--c-gh)',   label: 'GitHub Trending', desc: '今天在 GitHub 上增长最快的项目', icon: 'fire' },
+  recentHighStars:{ color: 'var(--c-star)',  label: '近期高星',        desc: '近期收获大量 star 的高质量仓库', icon: 'star' },
+  helloGitHub:    { color: 'var(--c-hello)', label: 'HelloGitHub',     desc: '分享有趣、入门级的开源项目',     icon: 'cube' },
+  hnph:           { color: 'var(--c-hn)',    label: 'HN · PH',         desc: 'Hacker News 热帖 + Product Hunt 上新', icon: 'hn' }
+};
+
+/* language → dot color */
+const LANG_C = {
+  Go:'#00ADD8', Rust:'#DEA584', 'C++':'#F34B7D', C:'#555555',
+  TypeScript:'#3178C6', JavaScript:'#F1E05A', Python:'#3572A5'
+};
+
+/* ============ ICONS (inline SVG, consistent stroke) ============ */
+const I = {
+  github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.36-3.37-1.36-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 2.9 6.26 6.86.72-5.13 4.6 1.46 6.72L12 17.77 5.91 21.3l1.46-6.72L2.24 9.98l6.86-.72L12 2Z"/></svg>',
+  fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c.5 2 .5 3-1 5-1.6 2-4 3.5-4 7a6 6 0 0 0 12 0c0-3-1.5-4.5-2.5-6S13 4 12 2Z"/><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17c1.5 0 3-1 3-3.5 0-1.5-.5-2.5-1-3.5"/></svg>',
+  arrowUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 9.5 9.5 0 0 1-4-1L3 21l1.5-4.5A8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5Z"/></svg>',
+  hn: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5.5 9.4 11v4h-1.8v-4L5 5.5h2l1.5 3.6L10 5.5h2Zm6.5 0L16 11v4h-1.8v-4L11.6 5.5h2L15 9l1.4-3.5h2.1Z"/></svg>',
+  ph: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6v18M6 12h7a4.5 4.5 0 0 0 0-9"/></svg>',
+  cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5 12 3 3 7.5v9L12 21l9-4.5v-9Z"/><path d="M3 7.5 12 12l9-4.5M12 21v-9"/></svg>'
+};
+
+const fmt = n => n >= 1000 ? (n/1000).toFixed(n%1000===0?0:1).replace(/\.0$/,'') + 'k' : ('' + n);
+const langDot = lang => `<span class="chip"><span class="lang-dot" style="--lc:${LANG_C[lang]||'#888'}"></span>${esc(lang)}</span>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ============ CARD BUILDERS ============ */
+function repoName(repo){
+  const i = repo.indexOf('/');
+  if (i < 0) return esc(repo);
+  return `<span class="owner">${esc(repo.slice(0,i+1))}</span>${esc(repo.slice(i+1))}`;
+}
+
+function buildGithubTrending(item, idx){
+  const hero = idx === 0;
+  const search = (item.repo + ' ' + item.desc + ' ' + item.lang).toLowerCase();
+  if (hero){
+    return card(item.url, 'hero', 'var(--c-gh)', search, `
+      <div class="hero-top">
+        <span class="hero-flag">${I.fire} 今日热度第一</span>
+        <span class="hero-rank num">#1</span>
+      </div>
+      <div>
+        <div class="repo-name">${repoName(item.repo)}</div>
+        <div class="desc">${esc(item.desc)}</div>
+      </div>
+      <div>
+        <div class="hero-bignum">
+          <span class="big num">+${item.todayStars}</span>
+          <span class="unit">stars · 今日</span>
+        </div>
+        <div class="hero-meta meta">
+          <span class="chip">${I.star}<span class="num">${fmt(item.stars)}</span> 总计</span>
+          <span class="chip"><span class="lang-dot" style="--lc:${LANG_C[item.lang]||'#fff'}"></span>${esc(item.lang)}</span>
+        </div>
+      </div>`);
+  }
+  const wide = idx === 3;
+  return card(item.url, 'metric' + (wide?' wide':''), 'var(--c-gh)', search, `
+    <div class="card-head">
+      <span class="mark">${I.github}</span>
+      <span class="rank num">#${idx+1}</span>
+    </div>
+    <div class="repo-name">${repoName(item.repo)}</div>
+    <div class="desc">${esc(item.desc)}</div>
+    <div class="figure"><span class="v num">+${item.todayStars}</span><span class="u">今日 stars</span></div>
+    <div class="meta">
+      <span class="chip stars">${I.star}<span class="num">${fmt(item.stars)}</span></span>
+      ${langDot(item.lang)}
+    </div>`);
+}
+
+function buildRecent(item, idx){
+  const hero = idx === 0;
+  const search = (item.repo + ' ' + item.desc + ' ' + item.lang).toLowerCase();
+  if (hero){
+    return card(item.url, 'hero', 'var(--c-star)', search, `
+      <div class="hero-top">
+        <span class="hero-flag">${I.star} 近期最高星</span>
+        <span class="hero-rank num">#1</span>
+      </div>
+      <div>
+        <div class="repo-name">${repoName(item.repo)}</div>
+        <div class="desc">${esc(item.desc)}</div>
+      </div>
+      <div>
+        <div class="hero-bignum">
+          <span class="big num">${fmt(item.stars)}</span>
+          <span class="unit">total stars</span>
+        </div>
+        <div class="hero-meta meta">
+          <span class="chip"><span class="lang-dot" style="--lc:${LANG_C[item.lang]||'#fff'}"></span>${esc(item.lang)}</span>
+        </div>
+      </div>`);
+  }
+  const wide = idx === 1;
+  return card(item.url, 'metric' + (wide?' wide':''), 'var(--c-star)', search, `
+    <div class="card-head">
+      <span class="mark">${I.github}</span>
+      <span class="rank num">#${idx+1}</span>
+    </div>
+    <div class="repo-name">${repoName(item.repo)}</div>
+    <div class="desc">${esc(item.desc)}</div>
+    <div class="figure"><span class="v num">${fmt(item.stars)}</span><span class="u">stars</span></div>
+    <div class="meta">
+      <span class="chip stars">${I.star}<span class="num">${fmt(item.stars)}</span></span>
+      ${langDot(item.lang)}
+    </div>`);
+}
+
+function buildHello(item, idx){
+  const hero = idx === 0;
+  const search = (item.name + ' ' + item.desc + ' ' + item.lang + ' ' + item.category).toLowerCase();
+  if (hero){
+    return card(item.url, 'hero', 'var(--c-hello)', search, `
+      <div class="hero-top">
+        <span class="hero-flag">${I.cube} 本期精选</span>
+        <span class="hero-rank">${esc(item.category)}</span>
+      </div>
+      <div>
+        <div class="repo-name">${esc(item.name)}</div>
+        <div class="desc">${esc(item.desc)}</div>
+      </div>
+      <div class="hero-meta meta">
+        <span class="chip">${esc(item.category)}</span>
+        <span class="chip"><span class="lang-dot" style="--lc:${LANG_C[item.lang]||'#fff'}"></span>${esc(item.lang)}</span>
+      </div>`);
+  }
+  const wide = idx === 2;
+  return card(item.url, (wide?'wide':''), 'var(--c-hello)', search, `
+    <div class="card-head">
+      <span class="mark">${I.cube}</span>
+      <span class="chip cat">${esc(item.category)}</span>
+    </div>
+    <div class="repo-name">${esc(item.name)}</div>
+    <div class="desc">${esc(item.desc)}</div>
+    <div class="meta">${langDot(item.lang)}</div>`);
+}
+
+function buildHnPh(item, idx){
+  const hero = idx === 0;
+  const isHn = item.kind === 'hn';
+  const search = (item.title + ' ' + (item.desc||'') + ' ' + item.kind).toLowerCase();
+  if (hero){
+    const badge = isHn
+      ? `<span class="hero-flag">${I.hn} Hacker News</span>`
+      : `<span class="hero-flag">${I.ph} Product Hunt</span>`;
+    const figure = isHn
+      ? `<div class="hero-bignum">
+           <span class="big num">${item.points}</span><span class="unit">points</span>
+         </div>
+         <div class="hero-meta meta">
+           <span class="chip">${I.comment}<span class="num">${item.comments}</span> 评论</span>
+         </div>`
+      : `<div class="hero-bignum">
+           <span class="big num">${item.votes}</span><span class="unit">votes</span>
+         </div>`;
+    return card(item.url, 'hero', 'var(--c-hn)', search, `
+      <div class="hero-top">
+        ${badge}
+        <span class="hero-rank">热议</span>
+      </div>
+      <div>
+        <div class="repo-name" style="font-size:var(--t-xl)">${esc(item.title)}</div>
+        ${item.desc?`<div class="desc">${esc(item.desc)}</div>`:''}
+      </div>
+      <div>${figure}</div>`);
+  }
+  let metaHtml, badgeChip;
+  if (isHn){
+    badgeChip = `<span class="chip points">${I.hn} HN</span>`;
+    metaHtml = `
+      <span class="chip points">${I.arrowUp}<span class="num">${item.points}</span></span>
+      <span class="chip">${I.comment}<span class="num">${item.comments}</span></span>`;
+  } else {
+    badgeChip = `<span class="chip votes">${I.ph} PH</span>`;
+    metaHtml = `<span class="chip votes">${I.arrowUp}<span class="num">${item.votes}</span> votes</span>`;
+  }
+  const wide = idx === 3;
+  return card(item.url, (wide?'wide':''), 'var(--c-hn)', search, `
+    <div class="card-head">
+      <span class="mark">${isHn?I.hn:I.ph}</span>
+      ${badgeChip}
+    </div>
+    <div class="title-line">${esc(item.title)}</div>
+    ${item.desc
+      ? `<div class="desc">${esc(item.desc)}</div>`
+      : `<div class="desc muted">来自 ${isHn?'Hacker News':'Product Hunt'} 的热门条目</div>`}
+    <div class="meta">${metaHtml}</div>`);
+}
+
+function card(url, cls, color, search, inner){
+  return `<a class="card ${cls}" style="--card-c:${color}" href="${url}" target="_blank" rel="noopener noreferrer" data-search="${esc(search)}">${inner}</a>`;
+}
+
+const BUILDERS = {
+  githubTrending: buildGithubTrending,
+  recentHighStars: buildRecent,
+  helloGitHub: buildHello,
+  hnph: buildHnPh
+};
+
+/* ============ RENDER ============ */
+const panelsEl = document.getElementById('panels');
+
+function render(){
+  let html = '';
+  for (const key of Object.keys(BUILDERS)){
+    const meta = SRC_META[key];
+    const items = DATA[key] || [];
+    const cards = items.map((it, i) => BUILDERS[key](it, i)).join('');
+    html += `<section class="panel" data-panel="${key}" role="tabpanel" aria-label="${esc(meta.label)}" style="--tab-c:${meta.color}">
+      <div class="section-label">
+        <span class="pill">${I[meta.icon]||''}${esc(meta.label)}</span>
+        <span class="desc">${esc(meta.desc)}</span>
+      </div>
+      <div class="bento">${cards}</div>
+      <div class="empty" data-empty>
+        <div class="ill" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <div class="big">没有匹配的结果</div>
+        <div class="small">换个关键词,或清除当前搜索</div>
+        <button type="button" class="reset" data-reset>清除搜索</button>
+      </div>
+    </section>`;
+  }
+  panelsEl.innerHTML = html;
+
+  // tab counts
+  document.querySelectorAll('[data-cnt]').forEach(el=>{
+    el.textContent = (DATA[el.dataset.cnt]||[]).length;
+  });
+
+  // updated time
+  document.getElementById('updated').textContent = DATA.updatedAt;
+}
+
+render();
+
+/* ============ TABS ============ */
+const tabs = [...document.querySelectorAll('.tab')];
+function activate(src){
+  tabs.forEach(t => {
+    const on = t.dataset.src === src;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.dataset.panel === src);
+  });
+  applyFilter();
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => activate(t.dataset.src));
+  t.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+      e.preventDefault();
+      const dir = e.key === 'ArrowRight' ? 1 : -1;
+      const next = tabs[(i + dir + tabs.length) % tabs.length];
+      next.focus(); activate(next.dataset.src);
+    } else if (e.key === 'Home'){
+      e.preventDefault(); tabs[0].focus(); activate(tabs[0].dataset.src);
+    } else if (e.key === 'End'){
+      e.preventDefault(); tabs[tabs.length-1].focus(); activate(tabs[tabs.length-1].dataset.src);
+    }
+  });
+});
+activate('githubTrending');
+
+/* ============ SEARCH ============ */
+const searchInput = document.getElementById('search');
+const searchWrap = document.getElementById('search-wrap');
+const clearBtn = document.getElementById('clear-search');
+
+function applyFilter(){
+  const q = searchInput.value.trim().toLowerCase();
+  searchWrap.classList.toggle('has-value', q.length > 0);
+  const panel = document.querySelector('.panel.active');
+  if (!panel) return;
+  let visible = 0;
+  panel.querySelectorAll('.card').forEach(c => {
+    const hit = !q || c.dataset.search.includes(q);
+    c.style.display = hit ? '' : 'none';
+    if (hit) visible++;
+  });
+  const empty = panel.querySelector('[data-empty]');
+  const bento = panel.querySelector('.bento');
+  if (empty) empty.classList.toggle('show', visible === 0);
+  if (bento) bento.style.display = visible === 0 ? 'none' : '';
+}
+searchInput.addEventListener('input', applyFilter);
+function clearSearch(){ searchInput.value=''; applyFilter(); searchInput.focus(); }
+clearBtn.addEventListener('click', clearSearch);
+// delegated reset button inside any panel's empty state
+panelsEl.addEventListener('click', e => {
+  if (e.target.closest('[data-reset]')) clearSearch();
+});
+
+/* ============ THEME ============ */
+const root = document.documentElement;
+const toggle = document.getElementById('theme-toggle');
+function setTheme(t){
+  root.setAttribute('data-theme', t);
+  try { localStorage.setItem('bento-theme', t); } catch(e){}
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('bento-theme'); } catch(e){}
+  if (saved) setTheme(saved);
+  else setTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+})();
+toggle.addEventListener('click', () => {
+  setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+/* ============ keyboard: focus search with / ============ */
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== searchInput){
+    e.preventDefault(); searchInput.focus();
+  }
+  if (e.key === 'Escape' && document.activeElement === searchInput && searchInput.value){
+    clearSearch();
+  }
+});
+</script>
+</body>
+</html>
