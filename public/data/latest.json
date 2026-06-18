@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2026-06-18T00:00:00Z",
+  "sources": {
+    "githubTrending": { "ok": true, "error": null, "items": [
+      { "repo": "dolthub/dolt", "url": "https://github.com/dolthub/dolt", "desc": "像 Git 一样能版本控制的 SQL 数据库", "lang": "Go", "stars": 18500, "todayStars": 320 },
+      { "repo": "gyroflow/gyroflow", "url": "https://github.com/gyroflow/gyroflow", "desc": "用陀螺仪数据做视频防抖", "lang": "Rust", "stars": 7200, "todayStars": 210 }
+    ] },
+    "recentHighStars": { "ok": true, "error": null, "items": [
+      { "repo": "whichllm/whichllm", "url": "https://github.com/whichllm/whichllm", "desc": "按硬件挑最合适的本地 LLM", "lang": "Python", "stars": 4200, "topics": [] },
+      { "repo": "FoundZiGu/GuJumpgate", "url": "https://github.com/FoundZiGu/GuJumpgate", "desc": "", "lang": "", "stars": 3902, "topics": ["ai", "agent", "llm"] }
+    ] },
+    "helloGitHub": { "ok": true, "error": null, "items": [
+      { "name": "gittype", "url": "https://github.com/unhappychoice/gittype", "desc": "把代码变成打字游戏", "lang": "Rust", "category": "游戏" }
+    ] },
+    "hnph": { "ok": true, "error": null, "items": [
+      { "kind": "hn", "title": "Show HN: Folo – an RSS reader", "url": "https://news.ycombinator.com/item?id=46033915", "points": 412, "comments": 156 },
+      { "kind": "ph", "title": "Kami", "url": "https://www.producthunt.com/posts/kami", "desc": "AI 文档设计模板" }
+    ] }
+  }
+}

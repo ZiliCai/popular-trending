@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>今日有趣 · Trending Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">今日有趣 <span class="brand-en">Trending Dashboard</span></h1>
+    <div class="controls">
+      <input id="search" class="search" type="search" placeholder="搜索项目…" aria-label="搜索" />
+      <button id="theme" class="theme-toggle" type="button" aria-label="切换明暗">◑</button>
+    </div>
+    <p class="updated">最后更新 <time id="updated">—</time></p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab is-active" data-source="githubTrending" role="tab">GitHub Trending</button>
+    <button class="tab" data-source="recentHighStars" role="tab">近期高星</button>
+    <button class="tab" data-source="helloGitHub" role="tab">HelloGitHub</button>
+    <button class="tab" data-source="hnph" role="tab">HN · PH</button>
+  </nav>
+
+  <main id="grid" class="bento" aria-live="polite">
+    <p class="state">加载中…</p>
+  </main>
+
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
