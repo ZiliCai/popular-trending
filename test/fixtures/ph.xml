@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+  <title>Product Hunt</title>
+  <item>
+    <title>Kami</title>
+    <link>https://www.producthunt.com/posts/kami</link>
+    <description>AI document design templates</description>
+  </item>
+  <item>
+    <title>CodexBar</title>
+    <link>https://www.producthunt.com/posts/codexbar</link>
+    <description>See quota for 40+ AI coding tools in your menubar</description>
+  </item>
+</channel></rss>
